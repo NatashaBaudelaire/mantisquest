@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MANTIS QUEST — Workshop 2026</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+#arcade{font-family:'Press Start 2P',monospace;background:#0a0a1a;color:#00ff41;min-height:600px;padding:16px;position:relative;overflow:hidden;border:3px solid #ff00ff;border-radius:8px;width:100%;max-width:680px;}
+#scanlines{position:absolute;inset:0;pointer-events:none;z-index:100;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);}
+#crt-glow{position:absolute;inset:0;pointer-events:none;z-index:99;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.5) 100%);}
+.screen{position:relative;z-index:10;}
+.arcade-header{text-align:center;border-bottom:2px solid #ff00ff;padding-bottom:10px;margin-bottom:10px;}
+.title-main{font-size:17px;color:#ffff00;text-shadow:2px 2px #ff6600,4px 4px #ff0000;letter-spacing:2px;animation:titleBlink 2s infinite;}
+.title-sub{font-size:6px;color:#00ff41;margin-top:5px;letter-spacing:1px;}
+@keyframes titleBlink{0%,100%{text-shadow:2px 2px #ff6600,4px 4px #ff0000;}50%{text-shadow:2px 2px #ff00ff,4px 4px #0000ff;}}
+.hud{display:flex;justify-content:space-between;align-items:center;font-size:6px;margin-bottom:10px;background:#050520;border:1px solid #00ff41;padding:5px 8px;border-radius:2px;}
+.hud-score{color:#ffff00;}.hud-level{color:#00ffff;}
+.hearts{display:flex;gap:3px;align-items:center;}
+.heart-ic{font-size:14px;transition:all 0.2s;}
+.heart-ic.alive{color:#ff4444;}.heart-ic.dead{color:#333;}
+.game-screen{display:none;}.game-screen.active{display:block;}
+#screen-coin{text-align:center;padding:10px 0;}
+.coin-slot{width:180px;height:180px;border:4px solid #ff00ff;border-radius:50%;background:#050520;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.1s;position:relative;overflow:hidden;margin:0 auto;}
+.coin-slot:hover{border-color:#ffff00;}
+.coin-slot:active{transform:scale(0.95);}
+.coin-inner{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.coin-inner i{font-size:42px;color:#ffff00;animation:coinSpin 3s linear infinite;}
+@keyframes coinSpin{0%{transform:rotateY(0deg);}50%{transform:rotateY(90deg);}51%{transform:rotateY(270deg);}100%{transform:rotateY(360deg);}}
+.coin-txt{font-size:7px;color:#ff00ff;animation:blink 0.8s infinite;}
+.coin-sub{font-size:5px;color:#888;margin-top:2px;}
+@keyframes blink{50%{opacity:0;}}
+.coins-bar{display:flex;gap:6px;justify-content:center;margin:10px 0;}
+.coin-item{width:32px;height:32px;border-radius:50%;background:#221100;border:2px solid #664400;display:flex;align-items:center;justify-content:center;transition:all 0.3s;}
+.coin-item.filled{background:#ffaa00;border-color:#ffff00;animation:coinPop 0.3s ease-out;}
+.coin-item i{font-size:14px;color:#ffaa00;}
+.coin-item.filled i{color:#000;}
+@keyframes coinPop{0%{transform:scale(0.5);}60%{transform:scale(1.3);}100%{transform:scale(1);}}
+.coin-count-txt{font-size:7px;color:#ffaa00;margin-bottom:4px;}
+.coin-flash{position:absolute;inset:0;border-radius:50%;background:#ffff0033;pointer-events:none;opacity:0;}
+.coin-flash.go{animation:flashOut 0.3s forwards;}
+@keyframes flashOut{0%{opacity:1;}100%{opacity:0;}}
+.name-entry{margin-top:12px;background:#050520;border:2px solid #00ff41;padding:10px;border-radius:2px;}
+.name-entry-title{font-size:6px;color:#ff00ff;margin-bottom:8px;}
+.avatar-grid{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
+.av-btn{width:36px;height:36px;border-radius:50%;border:2px solid #333;background:#0a0a2a;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.av-btn:hover{border-color:#ff00ff;}
+.av-btn.selected{border-color:#ffff00;background:#221100;}
+.av-btn i{font-size:18px;color:#888;}
+.av-btn.selected i{color:#ffff00;}
+.name-input{background:#0a0a1a;border:1px solid #444;color:#00ff41;font-family:'Press Start 2P',monospace;font-size:7px;padding:5px 8px;border-radius:2px;width:160px;text-align:center;}
+#screen-start{text-align:center;padding:10px 0;}
+.insert-coin-label{font-size:8px;color:#ffff00;margin:8px 0;animation:blink 1s infinite;}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;}
+.menu-btn{background:#0a0a2a;border:2px solid #ff00ff;color:#00ff41;font-family:'Press Start 2P',monospace;font-size:6px;padding:10px 6px;cursor:pointer;transition:all 0.1s;border-radius:2px;line-height:1.6;}
+.menu-btn:hover{background:#ff00ff;color:#000;transform:scale(1.05);}
+.menu-btn .btn-icon{font-size:22px;display:block;margin-bottom:6px;color:#ff00ff;}
+.menu-btn:hover .btn-icon{color:#000;}
+.menu-btn .btn-label{color:#ffff00;font-size:5px;margin-top:3px;display:block;}
+.menu-btn:hover .btn-label{color:#000;}
+.player-badge{display:inline-flex;align-items:center;gap:8px;background:#050520;border:1px solid #ff00ff;padding:6px 12px;border-radius:2px;margin-bottom:10px;}
+.player-badge i{font-size:20px;color:#ffff00;}
+.player-badge-name{font-size:7px;color:#ffff00;}
+.player-badge-score{font-size:5px;color:#888;margin-top:2px;}
+.hall-section{margin-top:10px;border:1px solid #333;padding:8px;border-radius:2px;}
+.hs-title{font-size:7px;color:#ff00ff;margin-bottom:6px;}
+.hs-title i{font-size:12px;vertical-align:-1px;margin-right:4px;}
+.hs-row{font-size:6px;color:#00ff41;margin:4px 0;display:flex;align-items:center;gap:6px;}
+.hs-rank{color:#ffff00;min-width:18px;}.hs-av i{font-size:13px;color:#888;}.hs-name{flex:1;}.hs-pts{color:#ffaa00;}
+#screen-quiz{padding:4px;}
+.quiz-category{font-size:7px;color:#ff00ff;margin-bottom:6px;text-align:center;}
+.quiz-question{background:#050520;border:2px solid #00ff41;padding:10px;font-size:7px;color:#ffff00;line-height:1.8;margin-bottom:8px;border-radius:2px;}
+.quiz-options{display:flex;flex-direction:column;gap:5px;}
+.quiz-opt{background:#0a0a2a;border:1px solid #444;color:#00ff41;font-family:'Press Start 2P',monospace;font-size:6px;padding:7px 10px;cursor:pointer;text-align:left;border-radius:2px;transition:all 0.1s;line-height:1.6;}
+.quiz-opt:hover{border-color:#ffff00;color:#ffff00;}
+.quiz-opt.correct{background:#003300;border-color:#00ff41;color:#00ff41;}
+.quiz-opt.wrong{background:#330000;border-color:#ff0000;color:#ff0000;}
+.quiz-feedback{margin-top:6px;font-size:6px;text-align:center;padding:6px;border-radius:2px;display:none;line-height:1.8;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.ok{color:#00ff41;border:1px solid #00ff41;background:#001100;}
+.quiz-feedback.fail{color:#ff4444;border:1px solid #ff4444;background:#110000;}
+#screen-demo{padding:4px;}
+.demo-title{font-size:7px;color:#ffff00;text-align:center;margin-bottom:8px;}
+.demo-title i{font-size:13px;vertical-align:-2px;margin-right:5px;color:#ff00ff;}
+.demo-panel{background:#050520;border:1px solid #00ff41;padding:7px;margin-bottom:7px;border-radius:2px;}
+.demo-panel-title{font-size:6px;color:#ff00ff;margin-bottom:5px;}
+.demo-panel-title i{font-size:11px;vertical-align:-1px;margin-right:4px;}
+.bug-list{display:flex;flex-direction:column;gap:4px;}
+.bug-item{display:flex;align-items:center;gap:7px;padding:4px;border:1px solid #222;background:#0a0a1a;border-radius:2px;cursor:pointer;transition:all 0.1s;}
+.bug-item:hover{border-color:#ff00ff;}
+.bug-id{font-size:5px;color:#666;min-width:34px;}
+.bug-sev{font-size:5px;padding:2px 4px;border-radius:1px;min-width:48px;text-align:center;display:flex;align-items:center;gap:2px;justify-content:center;}
+.sev-critical{background:#ff0000;color:#000;}.sev-major{background:#ff6600;color:#000;}.sev-minor{background:#ffff00;color:#000;}.sev-trivial{background:#00aa00;color:#000;}
+.bug-sev i{font-size:9px;}
+.bug-title{font-size:5px;color:#00ff41;flex:1;line-height:1.5;}
+.bug-status{font-size:5px;color:#888;min-width:50px;text-align:right;}
+.demo-actions{display:flex;gap:5px;flex-wrap:wrap;}
+.demo-btn{background:#0a0a2a;border:1px solid #ff00ff;color:#ff00ff;font-family:'Press Start 2P',monospace;font-size:5px;padding:5px 7px;cursor:pointer;border-radius:2px;transition:all 0.1s;display:inline-flex;align-items:center;gap:3px;}
+.demo-btn i{font-size:10px;}
+.demo-btn:hover{background:#ff00ff;color:#000;}
+.demo-modal{background:#050520;border:2px solid #ffff00;padding:10px;margin-top:7px;border-radius:2px;display:none;}
+.demo-modal.show{display:block;}
+.demo-modal-title{font-size:6px;color:#ffff00;margin-bottom:7px;}
+.demo-field{margin-bottom:5px;}
+.demo-label{font-size:5px;color:#888;margin-bottom:2px;display:block;}
+.demo-input,.demo-select{width:100%;background:#0a0a1a;border:1px solid #444;color:#00ff41;font-family:'Press Start 2P',monospace;font-size:5px;padding:4px 5px;border-radius:2px;}
+#bug-detail-panel{display:none;}
+#screen-boss{padding:4px;}
+.boss-area{text-align:center;}
+.boss-sprite-icon{font-size:54px;display:block;animation:bossFloat 1.5s ease-in-out infinite;color:#ff0000;margin:8px auto;}
+@keyframes bossFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.boss-name{font-size:8px;color:#ff0000;margin-bottom:3px;text-shadow:1px 1px #ff6600;}
+.boss-hp-bar{background:#333;border:1px solid #ff0000;height:14px;border-radius:2px;margin:6px 0;position:relative;}
+.boss-hp-fill{background:#ff3300;height:100%;border-radius:1px;transition:width 0.4s;}
+.boss-hp-txt{position:absolute;top:0;width:100%;font-size:6px;color:#fff;line-height:14px;text-align:center;}
+.attack-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+.attack-btn{background:#0a0a2a;border:2px solid #ff6600;color:#ffff00;font-family:'Press Start 2P',monospace;font-size:5px;padding:8px 5px;cursor:pointer;border-radius:2px;transition:all 0.1s;display:flex;flex-direction:column;align-items:center;gap:5px;line-height:1.8;}
+.attack-btn i{font-size:20px;color:#ff6600;}
+.attack-btn:hover{background:#ff6600;color:#000;}
+.attack-btn:hover i{color:#000;}
+.boss-log{background:#050520;border:1px solid #333;padding:7px;font-size:6px;color:#00ff41;margin-top:7px;height:58px;overflow-y:auto;line-height:2;}
+#screen-info .section-title{color:#ff00ff;margin-top:6px;font-size:6px;display:flex;align-items:center;gap:4px;}
+#screen-info .section-title i{font-size:11px;}
+#screen-info .info-line{font-size:5px;color:#00ff41;line-height:2.2;}
+#screen-victory,#screen-gameover{text-align:center;padding:16px 0;}
+.victory-icon,.gameover-icon{font-size:50px;display:block;margin-bottom:8px;}
+.victory-icon{color:#ffff00;animation:bossFloat 1s infinite;}
+.gameover-icon{color:#ff0000;animation:blink 0.5s infinite;}
+.victory-title{font-size:13px;color:#ffff00;text-shadow:2px 2px #ff6600;margin-bottom:10px;animation:blink 0.5s infinite;}
+.gameover-title{font-size:13px;color:#ff0000;text-shadow:2px 2px #660000;margin-bottom:10px;animation:blink 0.5s infinite;}
+.result-stats{font-size:6px;color:#00ff41;line-height:2.8;margin:10px 0;white-space:pre-line;}
+.restart-btn{background:#0a0a2a;border:2px solid #ffff00;color:#ffff00;font-family:'Press Start 2P',monospace;font-size:6px;padding:9px 14px;cursor:pointer;border-radius:2px;margin-top:8px;animation:blink 1s infinite;display:inline-flex;align-items:center;gap:5px;}
+.restart-btn i{font-size:13px;}
+.restart-btn:hover{background:#ffff00;color:#000;animation:none;}
+.next-btn{background:#003300;border:2px solid #00ff41;color:#00ff41;font-family:'Press Start 2P',monospace;font-size:5px;padding:7px 12px;cursor:pointer;border-radius:2px;margin-top:7px;display:none;align-items:center;gap:4px;}
+.next-btn i{font-size:10px;}
+.next-btn.show{display:inline-flex;}
+.next-btn:hover{background:#00ff41;color:#000;}
+.text-center{text-align:center;}.mt-8{margin-top:8px;}
+.corner-deco{position:absolute;font-size:10px;color:#ff00ff;opacity:0.3;pointer-events:none;z-index:5;font-family:monospace;}
+.corner-deco.tl{top:4px;left:4px;}.corner-deco.tr{top:4px;right:4px;}.corner-deco.bl{bottom:4px;left:4px;}.corner-deco.br{bottom:4px;right:4px;}
+</style>
+</head>
+<body>
+<div id="arcade">
+<div id="scanlines"></div>
+<div id="crt-glow"></div>
+<div class="corner-deco tl">▛</div><div class="corner-deco tr">▜</div>
+<div class="corner-deco bl">▙</div><div class="corner-deco br">▟</div>
+<div class="screen">
+<div class="arcade-header">
+  <div class="title-main">MANTIS QUEST</div>
+  <div class="title-sub">DEFECT TRACKER SIMULATOR</div>
+</div>
+<div class="hud">
+  <div class="hud-score"><i class="ti ti-star" aria-hidden="true"></i> <span id="score">0</span></div>
+  <div class="hearts" id="hearts-hud"></div>
+  <div class="hud-level"><i class="ti ti-bolt" aria-hidden="true"></i> LVL <span id="level">1</span></div>
+</div>
+<div id="game-area">
+
+<!-- COIN -->
+<div id="screen-coin" class="game-screen active">
+  <div style="font-size:6px;color:#888;margin-bottom:6px;">IDENTIFICAÇÃO DO JOGADOR</div>
+  <div class="name-entry" style="margin-bottom:10px;">
+    <div class="name-entry-title"><i class="ti ti-user-circle" aria-hidden="true"></i>ESCOLHA SEU AVATAR</div>
+    <div class="avatar-grid" id="avatar-grid"></div>
+    <div style="display:flex;justify-content:center;margin-bottom:4px;">
+      <input class="name-input" id="player-name-input" type="text" maxlength="10" placeholder="SEU NOME"/>
+    </div>
+  </div>
+  <div class="coin-count-txt"><span id="coin-count">0</span> / 3 COINS</div>
+  <div class="coins-bar" id="coins-bar"></div>
+  <div class="coin-slot" id="coin-slot" onclick="insertCoin()">
+    <div id="coin-flash" class="coin-flash"></div>
+    <div class="coin-inner">
+      <i class="ti ti-coin" aria-hidden="true"></i>
+      <div class="coin-txt">INSERIR MOEDA</div>
+      <div class="coin-sub">CLIQUE 3x PARA JOGAR</div>
+    </div>
+  </div>
+  <div style="font-size:5px;color:#444;margin-top:8px;text-align:center;">PRESSIONE 3x PARA INICIAR</div>
+</div>
+
+<!-- MENU -->
+<div id="screen-start" class="game-screen">
+  <div class="text-center" style="margin-bottom:8px;">
+    <div class="player-badge" id="player-badge">
+      <i class="ti ti-user" id="badge-av-icon" aria-hidden="true"></i>
+      <div>
+        <div class="player-badge-name" id="badge-name">PLAYER</div>
+        <div class="player-badge-score">SCORE: <span id="badge-score">0</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="insert-coin-label">▶ ESCOLHA SUA MISSÃO ◀</div>
+  <div class="menu-grid">
+    <button class="menu-btn" onclick="startQuiz()"><i class="ti ti-brain btn-icon" aria-hidden="true"></i>QUIZ<span class="btn-label">TESTE SEU CONHECIMENTO</span></button>
+    <button class="menu-btn" onclick="startDemo()"><i class="ti ti-terminal-2 btn-icon" aria-hidden="true"></i>DEMO<span class="btn-label">VER MANTIS NA PRÁTICA</span></button>
+    <button class="menu-btn" onclick="startBoss()"><i class="ti ti-skull btn-icon" aria-hidden="true"></i>BOSS BATTLE<span class="btn-label">DERROTE O BUG FINAL</span></button>
+    <button class="menu-btn" onclick="showInfo()"><i class="ti ti-file-description btn-icon" aria-hidden="true"></i>MEMORIAL<span class="btn-label">ROTEIRO DA FERRAMENTA</span></button>
+  </div>
+  <div class="hall-section">
+    <div class="hs-title"><i class="ti ti-trophy" aria-hidden="true"></i> HALL OF FAME</div>
+    <div id="hall-list"></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="game-screen">
+  <div class="quiz-category" id="q-category"></div>
+  <div class="quiz-question" id="q-text"></div>
+  <div class="quiz-options" id="q-options"></div>
+  <div class="quiz-feedback" id="q-feedback"></div>
+  <div class="text-center mt-8">
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()"><i class="ti ti-arrow-right"></i>PRÓXIMA</button>
+  </div>
+  <div class="text-center mt-8"><button class="demo-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i>MENU</button></div>
+</div>
+
+<!-- DEMO -->
+<div id="screen-demo" class="game-screen">
+  <div class="demo-title"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> MANTIS BUG TRACKER — SIMULAÇÃO</div>
+  <div class="demo-panel">
+    <div class="demo-panel-title"><i class="ti ti-list-details" aria-hidden="true"></i> LISTA DE DEFEITOS — PROJETO ALPHA v2.3</div>
+    <div class="bug-list" id="bug-list"></div>
+  </div>
+  <div class="demo-panel">
+    <div class="demo-panel-title"><i class="ti ti-settings-automation" aria-hidden="true"></i> AÇÕES</div>
+    <div class="demo-actions">
+      <button class="demo-btn" onclick="showNewBugForm()"><i class="ti ti-plus"></i> NOVO</button>
+      <button class="demo-btn" onclick="filterBugs('critical')"><i class="ti ti-alert-octagon"></i> CRÍTICOS</button>
+      <button class="demo-btn" onclick="filterBugs('all')"><i class="ti ti-list"></i>TODOS</button>
+      <button class="demo-btn" onclick="resolveBug()"><i class="ti ti-circle-check"></i>RESOLVER</button>
+    </div>
+  </div>
+  <div class="demo-modal" id="new-bug-form">
+    <div class="demo-modal-title"><i class="ti ti-bug" aria-hidden="true"></i>REGISTRAR NOVO DEFEITO</div>
+    <div class="demo-field"><label class="demo-label">TÍTULO:</label><input class="demo-input" id="bug-title-input" type="text" value="Login falha com caracteres especiais"/></div>
+    <div class="demo-field"><label class="demo-label">SEVERIDADE:</label><select class="demo-select" id="bug-sev-select"><option value="critical">CRITICA</option><option value="major">MAIOR</option><option value="minor">MENOR</option><option value="trivial">TRIVIAL</option></select></div>
+    <div class="demo-field"><label class="demo-label">CATEGORIA:</label><select class="demo-select"><option>AUTENTICAÇÃO</option><option>UI/UX</option><option>PERFORMANCE</option><option>BANCO DE DADOS</option></select></div>
+    <div class="demo-actions" style="margin-top:6px;">
+      <button class="demo-btn" onclick="addBug()"><i class="ti ti-device-floppy"></i>SALVAR</button>
+      <button class="demo-btn" onclick="closeForm()"><i class="ti ti-x"></i>CANCELAR</button>
+    </div>
+  </div>
+  <div class="demo-panel" id="bug-detail-panel">
+    <div class="demo-panel-title"><i class="ti ti-zoom-in" aria-hidden="true"></i>DETALHES</div>
+    <div id="bug-detail-content" style="font-size:5px;color:#00ff41;line-height:2.2;"></div>
+  </div>
+  <div class="text-center mt-8"><button class="demo-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i>MENU</button></div>
+</div>
+
+<!-- BOSS -->
+<div id="screen-boss" class="game-screen">
+  <div class="boss-area">
+    <i class="ti ti-virus boss-sprite-icon" id="boss-sprite-icon" aria-hidden="true"></i>
+    <div class="boss-name" id="boss-name">THE BIG BUG</div>
+    <div style="font-size:6px;color:#888;margin-bottom:3px;">HP DO SISTEMA</div>
+    <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill" style="width:100%;"></div><div class="boss-hp-txt" id="boss-hp-txt">100 / 100</div></div>
+    <div class="attack-btns">
+      <button class="attack-btn" onclick="attack('report')"><i class="ti ti-bug" aria-hidden="true"></i>REGISTRAR DEFEITO</button>
+      <button class="attack-btn" onclick="attack('severity')"><i class="ti ti-alert-triangle" aria-hidden="true"></i>DEFINIR SEVERIDADE</button>
+      <button class="attack-btn" onclick="attack('assign')"><i class="ti ti-user-check" aria-hidden="true"></i>ATRIBUIR RESPONSÁVEL</button>
+      <button class="attack-btn" onclick="attack('resolve')"><i class="ti ti-circle-check" aria-hidden="true"></i>RESOLVER E FECHAR</button>
+    </div>
+    <div class="boss-log" id="boss-log"><div>> SISTEMA INSTÁVEL DETECTADO!</div><div>> USE AS FUNÇÕES DO MANTIS PARA VENCER!</div></div>
+  </div>
+  <div class="text-center mt-8"><button class="demo-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i>MENU</button></div>
+</div>
+
+<!-- INFO -->
+<div id="screen-info" class="game-screen">
+  <div class="demo-panel">
+    <div class="demo-panel-title" style="font-size:7px;color:#ffff00;"><i class="ti ti-file-description" aria-hidden="true"></i>MEMORIAL</div>
+    <div class="section-title"><i class="ti ti-tool" aria-hidden="true"></i>FERRAMENTA</div><div class="info-line">Mantis Bug Tracker (MantisBT)</div>
+    <div class="section-title"><i class="ti ti-test-pipe" aria-hidden="true"></i> TIPO DE TESTE</div><div class="info-line">Gestão de Defeitos e Erros</div>
+    <div class="section-title"><i class="ti ti-thumb-up" aria-hidden="true"></i>PONTOS FORTES</div>
+    <div class="info-line">Gratuito e de código aberto<br>Interface simples e intuitiva<br>Fluxo de trabalho configurável<br>Notificações por e-mail<br>Relatórios e gráficos nativos<br>Integração com SVN/Git</div>
+    <div class="section-title"><i class="ti ti-thumb-down" aria-hidden="true"></i> PONTOS FRACOS</div>
+    <div class="info-line">UI desatualizada (anos 2000)<br>Escalabilidade limitada<br>Sem Kanban nativo<br>Mobile não responsivo</div>
+    <div class="section-title"><i class="ti ti-route" aria-hidden="true"></i> CASO DE USO</div>
+    <div class="info-line">Ciclo: registro → triagem → atribuição → resolução → fechamento</div>
+  </div>
+  <div class="text-center mt-8"><button class="demo-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i> MENU</button></div>
+</div>
+
+<!-- VICTORY -->
+<div id="screen-victory" class="game-screen">
+  <i class="ti ti-trophy victory-icon" aria-hidden="true"></i>
+  <div class="victory-title">VITÓRIA!</div>
+  <div style="font-size:6px;color:#00ff41;margin-bottom:6px;">TODOS OS BUGS ELIMINADOS!</div>
+  <div class="result-stats" id="victory-stats"></div>
+  <button class="restart-btn" onclick="goHome()"><i class="ti ti-player-play"></i>JOGAR NOVAMENTE</button>
+</div>
+
+<!-- GAMEOVER -->
+<div id="screen-gameover" class="game-screen">
+  <i class="ti ti-skull gameover-icon" aria-hidden="true"></i>
+  <div class="gameover-title">GAME OVER</div>
+  <div style="font-size:6px;color:#ff6666;margin-bottom:6px;">OS BUGS TOMARAM O SISTEMA!</div>
+  <div class="result-stats" id="gameover-stats"></div>
+  <button class="restart-btn" onclick="goHome()"><i class="ti ti-refresh"></i>TENTAR NOVAMENTE</button>
+</div>
+
+</div></div></div>
+
+<script>
+var AudioCtx=window.AudioContext||window.webkitAudioContext;
+var actx=null;
+function getCtx(){if(!actx){try{actx=new AudioCtx();}catch(e){}}return actx;}
+function beep(freq,dur,type,vol,delay){var c=getCtx();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type||'square';o.frequency.value=freq;var t=c.currentTime+(delay||0);g.gain.setValueAtTime(vol||0.15,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur+0.05);}
+function playCoin(){beep(988,0.06,'square',0.2);beep(1319,0.12,'square',0.2,0.07);}
+function playStart(){[523,659,784,1047].forEach(function(f,i){beep(f,0.12,'square',0.18,i*0.1);});}
+function playCorrect(){beep(784,0.1,'square',0.15);beep(1047,0.15,'square',0.15,0.12);}
+function playWrong(){beep(220,0.08,'sawtooth',0.18);beep(180,0.18,'sawtooth',0.18,0.1);}
+function playAttack(){beep(440+Math.random()*200,0.08,'square',0.15);beep(330,0.15,'sawtooth',0.12,0.09);}
+function playBossHit(){beep(880,0.05,'square',0.2);beep(660,0.1,'square',0.18,0.06);}
+function playVictory(){var m=[523,659,784,1047,1319,1047,784,1319];m.forEach(function(f,i){beep(f,0.14,'square',0.18,i*0.13);});}
+function playGameOver(){[440,330,220,110].forEach(function(f,i){beep(f,0.22,'sawtooth',0.18,i*0.2);});}
+function playMenuClick(){beep(660,0.07,'square',0.12);}
+function playHallSave(){[659,784,1047].forEach(function(f,i){beep(f,0.1,'square',0.16,i*0.08);});}
+var bgRunning=false;
+function playBgLoop(){if(bgRunning)return;bgRunning=true;var melody=[262,294,330,349,392,349,330,294];function loop(){melody.forEach(function(f,i){beep(f,0.18,'square',0.04,i*0.22);});setTimeout(loop,melody.length*220+400);}loop();}
+
+var AVATARS=[{icon:'ti-robot',label:'ROBO'},{icon:'ti-alien',label:'ALIEN'},{icon:'ti-ghost',label:'FANTASMA'},{icon:'ti-device-gamepad-2',label:'GAMER'},{icon:'ti-bug',label:'BUG'},{icon:'ti-sword',label:'GUERREIRO'},{icon:'ti-rocket',label:'FOGUETE'},{icon:'ti-crown',label:'REI'}];
+var selectedAvatar=0,playerName='PLAYER',coinCount=0,score=0,lives=3,level=1,answered=false,currentQ=0,bossHp=100,bossPhase=0,hallOfFame=[];
+var currentBugs=[{id:'0042',sev:'critical',title:'Crash ao fazer login com OAuth',status:'NOVO',cat:'AUTH'},{id:'0038',sev:'major',title:'Botão de pagamento não responde no mobile',status:'ATRIBUÍDO',cat:'UI'},{id:'0035',sev:'major',title:'Relatório PDF com dados errados',status:'RESOLVIDO',cat:'REPORT'},{id:'0031',sev:'minor',title:'Tooltip exibido fora da tela',status:'CONFIRMADO',cat:'UI'},{id:'0028',sev:'trivial',title:'Cor do botão cancelar levemente errada',status:'NOVO',cat:'VISUAL'}];
+var questions=[
+  {cat:'BASICO',q:'O que é o MantisBT (Mantis Bug Tracker)?',opts:['A) Software de gestão de projetos ágeis como o Jira','B) Sistema de código aberto para rastreamento de defeitos e bugs','C) Ferramenta de automação de testes unitários','D) IDE para desenvolvimento web'],correct:1,exp:'O MantisBT é um sistema web de código aberto para rastrear defeitos de software!'},
+  {cat:'SEVERIDADE',q:'Qual severidade usar quando o sistema fica completamente inacessível?',opts:['A) Trivial — afeta poucos usuários','B) Minor — impacto pequeno','C) Major — funcionalidade quebrada','D) Critical / Blocker — sistema fora do ar!'],correct:3,exp:'Sistema inacessível = CRITICAL/BLOCKER! Máxima prioridade.'},
+  {cat:'FLUXO',q:'Qual é o ciclo correto de um defeito no MantisBT?',opts:['A) Aberto → Fechado → Reaberto','B) Novo → Confirmado → Atribuído → Resolvido → Fechado','C) Detectado → Corrigido → Testado','D) Draft → Review → Deploy → Done'],correct:1,exp:'Novo → Confirmado → Atribuído → Resolvido → Fechado é o fluxo padrão!'},
+  {cat:'RECURSOS',q:'Qual recurso organiza bugs em versões/sprints no MantisBT?',opts:['A) Tags coloridas','B) Kanban Board integrado','C) Milestones / Target Version','D) GitHub Projects sync'],correct:2,exp:'Target Version (Milestones) agrupa defeitos por versão/release!'},
+  {cat:'RELATÓRIOS',q:'Para que serve o relatório Summary no MantisBT?',opts:['A) Gera código automático para corrigir bugs','B) Mostra dashboards com gráficos de defeitos','C) Faz deploy automático','D) Sincroniza com Git'],correct:1,exp:'Summary exibe gráficos de bugs por status, severidade e projeto!'},
+  {cat:'PRÁTICA',q:'Desenvolvedor corrigiu o bug. Qual status atribuir no MantisBT?',opts:['A) Closed — encerrar imediatamente','B) Fixed — aguardar verificação do QA','C) Confirmed — confirmar que existe','D) Reopened — reabrir para revisão'],correct:1,exp:'Fixed = corrigido, mas o QA precisa verificar antes de fechar!'}
+];
+var attackMsgs={report:['-15 HP: Defeito registrado!','-20 HP: Bug documentado!','-18 HP: Reprodução confirmada!'],severity:['-25 HP: Prioridade CRÍTICA!','-22 HP: Matriz de impacto!','-20 HP: Severidade correta!'],assign:['-20 HP: Dev atribuído!','-18 HP: QA acionado!','-22 HP: Sprint criado!'],resolve:['-30 HP: Bug FIXED!','-35 HP: FECHADO pelo QA!','-28 HP: Hotfix publicado!']};
+var bossIcons=['ti-virus','ti-spider','ti-skull'],bossNames=['THE BIG BUG','MUTANT BUG v2','FINAL BUG BOSS'];
+var sevIcon={critical:'ti-alert-octagon',major:'ti-alert-triangle',minor:'ti-info-circle',trivial:'ti-circle'};
+var sevLabel={critical:'CRÍTICO',major:'MAIOR',minor:'MENOR',trivial:'TRIVIAL'};
+var sevClass={critical:'sev-critical',major:'sev-major',minor:'sev-minor',trivial:'sev-trivial'};
+
+function buildAvatarGrid(){var g=document.getElementById('avatar-grid');g.innerHTML='';AVATARS.forEach(function(av,i){var btn=document.createElement('button');btn.className='av-btn'+(i===selectedAvatar?' selected':'');btn.innerHTML='<i class="ti '+av.icon+'" aria-hidden="true"></i>';btn.title=av.label;btn.onclick=function(){playMenuClick();selectedAvatar=i;document.querySelectorAll('.av-btn').forEach(function(b,j){b.className='av-btn'+(j===i?' selected':'');});};g.appendChild(btn);});}
+function buildCoinsBar(){var bar=document.getElementById('coins-bar');bar.innerHTML='';for(var i=0;i<3;i++){var d=document.createElement('div');d.className='coin-item'+(i<coinCount?' filled':'');d.innerHTML='<i class="ti ti-coin" aria-hidden="true"></i>';bar.appendChild(d);}document.getElementById('coin-count').textContent=coinCount;}
+function insertCoin(){if(coinCount>=3)return;playCoin();coinCount++;buildCoinsBar();var fl=document.getElementById('coin-flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');var slot=document.getElementById('coin-slot');slot.style.borderColor='#ffff00';setTimeout(function(){slot.style.borderColor='#ff00ff';},300);if(coinCount>=3){setTimeout(function(){var n=(document.getElementById('player-name-input').value||'PLAYER').toUpperCase().slice(0,10);playerName=n||'PLAYER';playStart();showScreen('screen-start');updateBadge();renderHall();playBgLoop();},500);}}
+function updateBadge(){document.getElementById('badge-name').textContent=playerName;document.getElementById('badge-score').textContent=score;document.getElementById('badge-av-icon').className='ti '+AVATARS[selectedAvatar].icon;}
+function renderHall(){var list=document.getElementById('hall-list');list.innerHTML='';var medals=['#ffff00','#aaaaaa','#ff6600'];if(hallOfFame.length===0){list.innerHTML='<div style="font-size:5px;color:#444;text-align:center;padding:4px;">NENHUM RECORDE AINDA</div>';return;}hallOfFame.slice(0,5).forEach(function(entry,i){var row=document.createElement('div');row.className='hs-row';row.innerHTML='<span class="hs-rank" style="color:'+(medals[i]||'#00ff41')+'">'+(i+1)+'.</span><span class="hs-av"><i class="ti '+AVATARS[entry.av].icon+'" style="color:'+(medals[i]||'#888')+'"></i></span><span class="hs-name">'+entry.name+'</span><span class="hs-pts">'+entry.score+'</span>';list.appendChild(row);});}
+function saveToHall(){hallOfFame.push({name:playerName,score:score,av:selectedAvatar});hallOfFame.sort(function(a,b){return b.score-a.score;});hallOfFame=hallOfFame.slice(0,10);playHallSave();}
+function renderHearts(){var h=document.getElementById('hearts-hud');h.innerHTML='';for(var i=0;i<3;i++){var ic=document.createElement('i');ic.className='ti ti-heart heart-ic '+(i<lives?'alive':'dead');ic.setAttribute('aria-hidden','true');h.appendChild(ic);}}
+function showScreen(id){document.querySelectorAll('.game-screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
+function goHome(){playMenuClick();showScreen('screen-start');updateBadge();renderHall();}
+function addScore(pts){score+=pts;document.getElementById('score').textContent=score;document.getElementById('badge-score').textContent=score;}
+function updateHUD(){document.getElementById('score').textContent=score;document.getElementById('level').textContent=level;renderHearts();}
+function startQuiz(){playMenuClick();currentQ=0;answered=false;lives=3;showScreen('screen-quiz');loadQuestion();}
+function loadQuestion(){if(currentQ>=questions.length){saveToHall();showVictory();return;}answered=false;var q=questions[currentQ];document.getElementById('q-category').textContent=q.cat+' — '+(currentQ+1)+' / '+questions.length;document.getElementById('q-text').textContent=q.q;var opts=document.getElementById('q-options');opts.innerHTML='';q.opts.forEach(function(o,i){var btn=document.createElement('button');btn.className='quiz-opt';btn.textContent=o;btn.onclick=function(){answerQ(i,btn);};opts.appendChild(btn);});document.getElementById('q-feedback').className='quiz-feedback';document.getElementById('next-btn').className='next-btn';}
+function answerQ(idx,btn){if(answered)return;answered=true;var q=questions[currentQ];document.querySelectorAll('.quiz-opt').forEach(function(b){b.disabled=true;});var fb=document.getElementById('q-feedback');if(idx===q.correct){btn.classList.add('correct');fb.textContent='CORRETO! +100 PONTOS — '+q.exp;fb.className='quiz-feedback show ok';addScore(100);playCorrect();}else{btn.classList.add('wrong');document.querySelectorAll('.quiz-opt')[q.correct].classList.add('correct');fb.textContent='ERRADO! -1 VIDA — '+q.exp;fb.className='quiz-feedback show fail';lives--;playWrong();renderHearts();if(lives<=0){setTimeout(showGameOver,1500);return;}}document.getElementById('next-btn').className='next-btn show';}
+function nextQuestion(){currentQ++;loadQuestion();}
+function startDemo(){playMenuClick();showScreen('screen-demo');renderBugs(currentBugs);}
+function renderBugs(list){var bl=document.getElementById('bug-list');bl.innerHTML='';list.forEach(function(b){var div=document.createElement('div');div.className='bug-item';div.onclick=function(){showBugDetail(b);};div.innerHTML='<span class="bug-id">#'+b.id+'</span><span class="bug-sev '+sevClass[b.sev]+'"><i class="ti '+sevIcon[b.sev]+'"></i>'+sevLabel[b.sev]+'</span><span class="bug-title">'+b.title+'</span><span class="bug-status">'+b.status+'</span>';bl.appendChild(div);});}
+function showBugDetail(b){document.getElementById('bug-detail-content').innerHTML='<div>CATEGORIA: '+b.cat+' | ID: #'+b.id+'</div><div>TÍTULO: '+b.title+'</div><div>SEVERIDADE: '+sevLabel[b.sev]+' | STATUS: '+b.status+'</div><div style="color:#ff00ff;margin-top:4px;">CICLO: Novo → Confirmado → Atribuído → Resolvido → Fechado</div>';document.getElementById('bug-detail-panel').style.display='block';addScore(10);updateHUD();playMenuClick();}
+function showNewBugForm(){document.getElementById('new-bug-form').classList.toggle('show');playMenuClick();}
+function closeForm(){document.getElementById('new-bug-form').classList.remove('show');}
+function addBug(){var title=document.getElementById('bug-title-input').value||'Novo defeito';var sev=document.getElementById('bug-sev-select').value;var newId=String(Number(currentBugs[0].id)+1).padStart(4,'0');currentBugs.unshift({id:newId,sev:sev,title:title,status:'NOVO',cat:'GERAL'});renderBugs(currentBugs);closeForm();addScore(50);updateHUD();playCorrect();}
+function filterBugs(type){playMenuClick();renderBugs(type==='critical'?currentBugs.filter(function(b){return b.sev==='critical';}):currentBugs);}
+function resolveBug(){var open=currentBugs.find(function(b){return b.status==='NOVO'||b.status==='CONFIRMADO'||b.status==='ATRIBUÍDO';});if(open){open.status='FECHADO';renderBugs(currentBugs);addScore(75);updateHUD();playCorrect();}}
+function showInfo(){playMenuClick();showScreen('screen-info');}
+function startBoss(){playMenuClick();bossHp=100;bossPhase=0;document.getElementById('boss-log').innerHTML='<div>> SISTEMA INSTÁVEL DETECTADO!</div><div>> USE AS FUNÇÕES DO MANTIS PARA VENCER!</div>';updateBossUI();showScreen('screen-boss');}
+function updateBossUI(){document.getElementById('boss-sprite-icon').className='ti '+bossIcons[bossPhase]+' boss-sprite-icon';document.getElementById('boss-name').textContent=bossNames[bossPhase];document.getElementById('boss-hp-fill').style.width=bossHp+'%';document.getElementById('boss-hp-txt').textContent=bossHp+' / 100';}
+function attack(type){if(bossHp<=0)return;var msgs=attackMsgs[type];var msg=msgs[Math.floor(Math.random()*msgs.length)];var dmg=parseInt(msg.match(/-(\d+) HP/)[1]);bossHp=Math.max(0,bossHp-dmg);addScore(dmg*2);updateHUD();playAttack();setTimeout(function(){playBossHit();},150);var log=document.getElementById('boss-log');log.innerHTML+='<div style="color:#ffff00;">> '+msg+'</div>';log.scrollTop=log.scrollHeight;if(bossHp<=65&&bossPhase===0){bossPhase=1;log.innerHTML+='<div style="color:#ff6600;">> ELE ESTA MUTANDO!</div>';}if(bossHp<=30&&bossPhase===1){bossPhase=2;log.innerHTML+='<div style="color:#ff0000;">> FORMA FINAL ATIVADA!</div>';}updateBossUI();if(bossHp<=0){document.getElementById('boss-sprite-icon').className='ti ti-circle-check boss-sprite-icon';document.getElementById('boss-sprite-icon').style.color='#00ff41';document.getElementById('boss-name').textContent='DERROTADO!';log.innerHTML+='<div style="color:#00ff41;">> TODOS OS BUGS ELIMINADOS!</div>';setTimeout(function(){saveToHall();showVictory();},2000);}}
+function showVictory(){playVictory();level++;document.getElementById('victory-stats').textContent='JOGADOR: '+playerName+'\nPONTUAÇÃO: '+score+'\nNÍVEL: '+level+'\nVIDAS: '+lives+'\nRANK: '+(score>500?'BUG MASTER ★★★':score>200?'QA HERO ★★':'JUNIOR DEV ★');updateHUD();showScreen('screen-victory');}
+function showGameOver(){playGameOver();saveToHall();document.getElementById('gameover-stats').textContent='JOGADOR: '+playerName+'\nPONTUAÇÃO: '+score+'\nPERGUNTA: '+(currentQ+1)+' DE '+questions.length+'\nOS BUGS VENCERAM...';showScreen('screen-gameover');}
+
+buildAvatarGrid();
+buildCoinsBar();
+renderHearts();
+</script>
+</body>
+</html>
