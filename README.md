@@ -1,117 +1,117 @@
-# MANTIS QUEST - Defect Tracker Simulator
+<h1 align="center">
+  Mantis Quest
+</h1>
 
-Mantis Quest transforms QA and bug management into an interactive arcade experience — no installation required, just open the HTML file in your browser and start playing.
+![Image](IMAGE.gif)
 
+## Objective
+ 
+The main goal of this project was to create an educational game that teaches software defect tracking concepts in an engaging way, applying **HTML5, CSS3 and Vanilla JavaScript**. The game mechanics simulate real bug tracking workflows using **MantisBT** as a reference, covering the full defect lifecycle through quizzes, a bug tracker simulator, and boss battles — all presented through a retro arcade interface with CRT visual effects and Web Audio API sound design.
+ 
 ---
-
-## About
-
-Mantis Quest is an educational game built to teach software quality assurance concepts in a fun and engaging way. Inspired by retro arcade aesthetics, the game covers real-world topics like bug tracking with MantisBT, defect severity classification, and the full software defect lifecycle — all through gameplay mechanics such as quizzes, a bug tracking simulator, and boss battles against critical bugs.
-
-The project was developed as a gamification tool for QA learning, turning technical concepts into interactive challenges with XP progression, ranks, and a Hall of Fame.
-
+ 
+## Contents
+ 
+1. [Project Overview](#project-overview)
+2. [Objective](#objective)
+3. [Technologies Used](#technologies-used)
+4. [Installation and Execution](#installation-and-execution)
+5. [Game Modes](#game-modes)
+6. [Key Concepts Applied](#key-concepts-applied)
+7. [Improvements to Implement](#improvements-to-implement)
+8. [Contact](#contact)
 ---
-
-## Features
-
-- Retro arcade interface with CRT/pixel visual effects
-- Quiz system about QA and MantisBT
-- Bug tracking simulation (create, assign, resolve tickets)
-- Boss Battle against "The Big Bug"
-- XP, score progression, and Hall of Fame ranking
-- Retro sound effects using Web Audio API
-
+ 
+## Project Overview
+ 
+Mantis Quest is a retro arcade-inspired educational game that transforms QA and bug management into an interactive experience. It features a quiz system about MantisBT and Quality Assurance, a bug tracking simulator, a boss battle against critical bugs, an XP and ranking system, and a Hall of Fame — all contained in a single HTML file with no installation required.
+ 
 ---
-
+ 
 ## Technologies Used
-
-- HTML5
-- CSS3
-- JavaScript (Vanilla)
-- Web Audio API
-- Tabler Icons
-
+ 
+- **HTML5**
+- **CSS3**
+- **JavaScript (Vanilla ES6+)**
+- **Web Audio API**
+- **Tabler Icons**
 ---
-
-## Getting Started
-
-### Clone the repository
-
+ 
+## Key Features
+ 
+- Retro arcade interface with CRT and pixel visual effects
+- Quiz system covering MantisBT, QA, defect management, and severity classification
+- Bug tracking simulator where players create, assign, and resolve tickets
+- Boss Battle mechanic against "The Big Bug" following real defect lifecycle steps
+- XP and score progression with rank system (Junior Development → QA Hero → Bug Master)
+- Hall of Fame ranking to track top players
+- Retro sound effects generated via Web Audio API
+- Fully self-contained: runs directly in the browser with no dependencies
+---
+ 
+## Improvements to Implement
+ 
+- Enable a save system using localStorage to preserve progress across sessions
+- Add online ranking with backend integration
+- Develop multiple boss battles with increasing difficulty
+- Expand the quiz bank with more questions and categories
+- Optimise layout and interactions for mobile devices
+- Implement multiplayer mode
+---
+ 
+## Installation and Execution
+ 
+### 1. Clone the repository
+ 
 ```bash
 git clone https://github.com/your-user/mantisquest.git
 cd mantisquest
 ```
-
-### Run the project
-
+ 
+### 2. Run the project
+ 
 Simply open the file in your browser:
-
+ 
 ```bash
-mantisquest.html
+# macOS/Linux
+open mantisquest.html
+ 
+# Windows
+start mantisquest.html
 ```
-
-No installation or dependencies required.
-
+ 
+No server, build step, or dependencies required.
+ 
 ---
-
+ 
 ## Game Modes
-
+ 
 ### Quiz Mode
-Answer questions about MantisBT, QA, defect management, and severity classification.
-
+Answer questions about MantisBT, QA, defect management, and severity classification to earn XP.
+ 
 ### Demo Mode
 Simulate a real bug tracking environment: create bugs, define severity, resolve issues, and filter tickets.
-
+ 
 ### Boss Battle
 Fight against "The Big Bug" by registering defects, defining severity, assigning developers, and closing issues.
-
+ 
 ### Memorial
 A technical overview of MantisBT covering strengths, weaknesses, workflow, and use cases.
-
+ 
 ---
-
-## Scoring System
-
-Players earn XP and points by:
-- Answering quiz questions correctly
-- Managing bugs in the simulator
-- Defeating bosses
-- Exploring the system
-
-**Ranks:**
-| Rank | Description |
-|------|-------------|
-| Junior Development | Starting rank |
-| QA Hero | Mid-tier achiever |
-| Bug Master | Top rank |
-
+ 
+## Key Concepts Applied
+ 
+- Single-file HTML5 architecture
+- Retro CRT visual effects using CSS animations
+- Dynamic DOM manipulation with JavaScript
+- Game state management with XP and ranking logic
+- Audio synthesis using the Web Audio API
+- Bug tracking workflow simulation
+- Defect lifecycle education through gamification
+- Severity classification and QA concepts
 ---
-
-## Educational Purpose
-
-This project teaches concepts such as:
-
-- Quality Assurance (QA)
-- Bug Tracking with MantisBT
-- Severity Levels
-- Software Defect Workflow
-- Defect lifecycle
-
-through gamification and hands-on simulation.
-
----
-
-## Project Structure
-
-```txt
-mantis-quest/
-│
-├── README.md
-└── mantisquest.html
-```
-
----
-
+ 
 ## Contact
-
-For questions, suggestions, or feedback, please open an issue on the repository or reach out directly via GitHub.
+ 
+For questions, suggestions, or feedback, please open an issue on the repository or contact directly via GitHub.
