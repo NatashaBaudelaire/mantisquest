@@ -6,7 +6,7 @@
 
 ## Objective
  
-The main goal of this project was to create an educational game that teaches software defect tracking concepts in an engaging way, applying **HTML5, CSS3 and Vanilla JavaScript**. The game mechanics simulate real bug tracking workflows using **MantisBT** as a reference, covering the full defect lifecycle through quizzes, a bug tracker simulator, and boss battles — all presented through a retro arcade interface with CRT visual effects and Web Audio API sound design.
+The main goal of this project was to create an educational game that teaches software defect tracking concepts in an engaging way, applying **HTML5, CSS3 and Vanilla JavaScript**. The game mechanics simulate real bug tracking workflows using **MantisBT** as a reference, covering the full defect lifecycle through quizzes, a bug tracker simulator, and boss battles, all presented through a retro arcade interface with CRT visual effects and Web Audio API sound design.
  
 ---
  
@@ -24,7 +24,7 @@ The main goal of this project was to create an educational game that teaches sof
  
 ## Project Overview
  
-Mantis Quest is a retro arcade-inspired educational game that transforms QA and bug management into an interactive experience. It features a quiz system about MantisBT and Quality Assurance, a bug tracking simulator, a boss battle against critical bugs, an XP and ranking system, and a Hall of Fame — all contained in a single HTML file with no installation required.
+Mantis Quest is a retro arcade-inspired educational game that transforms QA and bug management into an interactive experience. It features a quiz system about MantisBT and Quality Assurance, a bug tracking simulator, a boss battle against critical bugs, an XP and ranking system, and a Hall of Fame, all contained in a single HTML file with no installation required.
  
 ---
  
