@@ -2,7 +2,7 @@
   Mantis Quest
 </h1>
 
-![Image](IMAGE.gif)
+![Image](mantisquest.gif)
 
 ## Objective
  
