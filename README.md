@@ -2,8 +2,6 @@
   Mantis Quest
 </h1>
 
-![Image](mantisquest.gif)
-
 ## Objective
  
 The main goal of this project was to create an educational game that teaches software defect tracking concepts in an engaging way, applying **HTML5, CSS3 and Vanilla JavaScript**. The game mechanics simulate real bug tracking workflows using **MantisBT** as a reference, covering the full defect lifecycle through quizzes, a bug tracker simulator, and boss battles, all presented through a retro arcade interface with CRT visual effects and Web Audio API sound design.
